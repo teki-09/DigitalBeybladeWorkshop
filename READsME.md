@@ -15,8 +15,6 @@ or writeups
 
 
 
-
-
 | Feature / Module | Implementation Details |
 | --- | --- |
 | **Dashboard** | Counts, win rate, finish counts in wins, and recent records are derived from stored records. |
@@ -39,3 +37,9 @@ Details in each tab, along with details in each specialized feature
 
 
 why xp for training?  trying to incentivize practice and meetups in local settings so that way groups can improve skills together.
+
+what next?
+AI Commentary: model reads/sees camera feed then when you let it rip, the AI writes dialogue context based commentary in same voice as game.
+Predictive ML Models (predicting battles and then real time winner and loser decided upto 3s before the battle ends
+A better Battle Physics Mechanism
+A Higher Quality of Visuals Battle Mechanism
