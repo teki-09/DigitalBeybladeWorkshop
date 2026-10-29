@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS Beyblade X-Hub | Ultimate Beyblade OS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Orbitron for futuristic cyber typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#080b12',
+                            card: '#0f172a',
+                            border: '#1e293b',
+                            cyan: '#06b6d4',
+                            magenta: '#ec4899',
+                            yellow: '#eab308',
+                            green: '#10b981',
+                            purple: '#8b5cf6',
+                            red: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        cyber: ['Orbitron', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(6, 182, 212, 0.4)',
+                        'neon-magenta': '0 0 15px rgba(236, 72, 153, 0.4)',
+                        'neon-yellow': '0 0 15px rgba(234, 179, 8, 0.4)',
+                        'neon-green': '0 0 15px rgba(16, 185, 129, 0.4)',
+                        'glow-lg': '0 0 25px rgba(6, 182, 212, 0.25)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #080b12;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Custom Cyber Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #080b12; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* Glassmorphism panels */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel-interactive {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel-interactive:hover {
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Custom Glowing Grid Overlay */
+        .cyber-grid {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        canvas { touch-action: none; }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.5)); }
+            50% { opacity: 1; filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.9)); }
+        }
+        .animate-pulse-glow { animation: pulse-glow 2.5s infinite ease-in-out; }
+        
+        .heatmap-cell { transition: all 0.2s; }
+        .heatmap-cell:hover { border: 1px solid #06b6d4; transform: scale(1.1); z-index: 10; }
+    </style>
+</head>
+<body class="cyber-grid min-h-screen flex flex-col antialiased selection:bg-cyber-cyan selection:text-black">
+
+    <!-- TOP HEADER / SYSTEM BAR -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Brand Logo & Title -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyber-cyan via-blue-600 to-cyber-magenta p-0.5 shadow-neon-cyan animate-pulse-glow">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                        <svg class="w-6 h-6 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-cyber text-lg lg:text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-white to-cyber-magenta">
+                        PS BEYBLADE <span class="text-xs px-2 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 font-sans font-semibold">X-HUB v4.0</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-400 tracking-widest uppercase">Competitive Beyblade OS & Physics Engine</p>
+                </div>
+            </div>
+
+            <!-- Global Stats Bar & JSON Sync -->
+            <div class="hidden md:flex items-center space-x-4">
+                
+                <!-- JSON Data Sync -->
+                <div class="flex items-center space-x-2 bg-slate-900/80 px-2 py-1 rounded-lg border border-slate-800">
+                    <button onclick="exportDataJSON()" class="p-1.5 text-xs font-semibold text-cyber-cyan hover:text-white transition flex items-center space-x-1" title="Backup to Google Drive / Local">
+                        <span>💾</span><span>Export</span>
+                    </button>
+                    <div class="w-px h-4 bg-slate-700"></div>
+                    <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importDataJSON(event)">
+                    <button onclick="document.getElementById('import-file').click()" class="p-1.5 text-xs font-semibold text-cyber-magenta hover:text-white transition flex items-center space-x-1" title="Restore Data">
+                        <span>📂</span><span>Import</span>
+                    </button>
+                </div>
+
+                <!-- Blader Level & XP Progress -->
+                <div class="flex items-center space-x-3 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
+                    <div class="text-right">
+                        <div class="text-[10px] text-slate-400 font-semibold tracking-wider">BLADER LEVEL <span id="user-level" class="text-cyber-cyan font-bold">LVL 5</span></div>
+                        <div class="w-28 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-0.5">
+                            <div id="user-xp-bar" class="h-full bg-gradient-to-r from-cyber-cyan to-cyber-magenta w-3/5 transition-all duration-500"></div>
+                        </div>
+                    </div>
+                    <span id="user-xp-text" class="text-xs font-cyber font-bold text-cyber-yellow">650 XP</span>
+                </div>
+
+                <!-- SFX Toggle -->
+                <button id="sfx-toggle-btn" onclick="toggleSFX()" class="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-cyber-cyan hover:border-cyber-cyan/40 transition">
+                    <svg id="sfx-icon-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                    <svg id="sfx-icon-off" class="w-5 h-5 hidden text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+                </button>
+            </div>
+
+            <!-- Mobile Navigation Drawer Toggle -->
+            <button onclick="toggleMobileNav()" class="md:hidden p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            </button>
+        </div>
+
+        <!-- Mobile Navigation Menu Dropdown -->
+        <div id="mobile-nav" class="hidden md:hidden mt-3 pt-3 border-t border-slate-800 grid grid-cols-2 gap-2 text-xs font-semibold">
+            <button onclick="switchTab('dashboard')" class="p-2.5 rounded bg-slate-900 text-slate-200 text-left">📊 Dashboard</button>
+            <button onclick="switchTab('builder')" class="p-2.5 rounded bg-slate-900 text-slate-200 text-left">⚙️ Combo Builder</button>
+            <button onclick="switchTab('explorer')" class="p-2.5 rounded bg-slate-900 text-slate-200 text-left">🔍 Parts Explorer</button>
+            <button onclick="switchTab('simulator')" class="p-2.5 rounded bg-slate-900 text-slate-200 text-left">⚡ Arena Simulator</button>
+            <button onclick="switchTab('matches')" class="p-2.5 rounded bg-slate-900 text-slate-200 text-left">🏆 Match Log</button>
+            <button onclick="switchTab('skills')" class="p-2.5 rounded bg-slate-900 text-slate-200 text-left">🎯 Skill Tree</button>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS (DESKTOP) -->
+    <nav class="hidden md:block glass-panel border-b border-slate-800/80 sticky top-[65px] z-40 bg-slate-950/80">
+        <div class="max-w-7xl mx-auto px-4 lg:px-8 flex items-center space-x-1 py-1 overflow-x-auto">
+            <button id="nav-btn-dashboard" onclick="switchTab('dashboard')" class="nav-tab px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 transition text-cyber-cyan bg-slate-900 border border-cyber-cyan/30 shadow-neon-cyan">
+                <span>📊</span><span>Dashboard</span>
+            </button>
+            <button id="nav-btn-builder" onclick="switchTab('builder')" class="nav-tab px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <span>⚙️</span><span>Combo Builder & Visualizer</span>
+            </button>
+            <button id="nav-btn-explorer" onclick="switchTab('explorer')" class="nav-tab px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <span>🔍</span><span>Part Explorer</span>
+            </button>
+            <button id="nav-btn-simulator" onclick="switchTab('simulator')" class="nav-tab px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <span>⚡</span><span>Arena Physics Simulator</span>
+            </button>
+            <button id="nav-btn-matches" onclick="switchTab('matches')" class="nav-tab px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <span>🏆</span><span>Match Log & Stats</span>
+            </button>
+            <button id="nav-btn-skills" onclick="switchTab('skills')" class="nav-tab px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-2 transition text-slate-400 hover:text-white hover:bg-slate-900">
+                <span>🎯</span><span>Skill Tree & Training</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN APP CONTENT CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 space-y-8">
+
+        <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+        <section id="view-dashboard" class="tab-content space-y-8">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-2xl glass-panel p-6 lg:p-10 border border-slate-800 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950/60 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-cyber-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute right-1/3 -top-10 w-72 h-72 bg-cyber-magenta/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-cyber-cyan animate-ping"></span>
+                        <span>BEYBLADE X SYSTEM COMPATIBLE</span>
+                    </div>
+                    <h2 class="font-cyber text-3xl lg:text-5xl font-black text-white tracking-tight leading-none">
+                        BUILD. SIMULATE. <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-white to-cyber-magenta">DOMINATE THE ARENA.</span>
+                    </h2>
+                    <p class="text-slate-300 text-sm lg:text-base leading-relaxed">
+                        Welcome to PS Beyblade X-Hub. Engineer custom layer combos, calculate dynamics, simulate physics-based clashes, and track deep tournament metrics including launch vectors and finish types.
+                    </p>
+
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button onclick="switchTab('builder')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyber-cyan to-blue-600 text-slate-950 font-cyber font-bold text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-[1.02] active:scale-95 transition">
+                            Launch Combo Builder
+                        </button>
+                        <button onclick="switchTab('simulator')" class="px-6 py-3 rounded-xl glass-panel border border-cyber-magenta/50 text-cyber-magenta hover:bg-cyber-magenta/10 font-cyber font-bold text-xs uppercase tracking-wider shadow-neon-magenta hover:scale-[1.02] active:scale-95 transition">
+                            Enter Arena Simulator
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Metrics Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 rounded-xl border border-slate-800 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan text-2xl font-cyber">⚙️</div>
+                    <div>
+                        <div class="text-2xl font-cyber font-bold text-white" id="metric-combos-count">0</div>
+                        <div class="text-xs text-slate-400 font-medium">Active Combos</div>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl border border-slate-800 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-lg bg-cyber-magenta/10 border border-cyber-magenta/30 flex items-center justify-center text-cyber-magenta text-2xl font-cyber">⚔️</div>
+                    <div>
+                        <div class="text-2xl font-cyber font-bold text-white" id="metric-matches-count">0</div>
+                        <div class="text-xs text-slate-400 font-medium">Matches Logged</div>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl border border-slate-800 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-lg bg-cyber-yellow/10 border border-cyber-yellow/30 flex items-center justify-center text-cyber-yellow text-2xl font-cyber">🎯</div>
+                    <div>
+                        <div class="text-2xl font-cyber font-bold text-white" id="metric-winrate">0%</div>
+                        <div class="text-xs text-slate-400 font-medium">Global Win Rate</div>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl border border-slate-800 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-lg bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center text-cyber-green text-2xl font-cyber">👑</div>
+                    <div>
+                        <div class="text-sm font-cyber font-bold text-white truncate max-w-[130px]" id="metric-top-blade">Dran Sword</div>
+                        <div class="text-xs text-slate-400 font-medium">Top Meta Blade</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deep Analytics Row (NEW: Finishes, Durations, Selections) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-panel p-5 rounded-xl border border-slate-800">
+                    <h4 class="text-xs text-slate-400 font-semibold mb-3 uppercase tracking-wider">Finish Breakdown</h4>
+                    <div class="space-y-2 text-sm font-cyber font-bold">
+                        <div class="flex justify-between items-center"><span class="text-cyber-magenta">Xtreme (3pt)</span> <span id="dash-xtreme-wins">0</span></div>
+                        <div class="flex justify-between items-center"><span class="text-cyber-cyan">Burst (2pt)</span> <span id="dash-burst-wins">0</span></div>
+                        <div class="flex justify-between items-center"><span class="text-cyber-purple">Over (2pt)</span> <span id="dash-over-wins">0</span></div>
+                        <div class="flex justify-between items-center"><span class="text-cyber-yellow">Spin (1pt)</span> <span id="dash-spin-wins">0</span></div>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl border border-slate-800">
+                    <h4 class="text-xs text-slate-400 font-semibold mb-3 uppercase tracking-wider">Telemetry Averages</h4>
+                    <div class="space-y-2 text-sm font-cyber font-bold">
+                        <div class="flex justify-between items-center"><span class="text-slate-300">Avg Spin Duration</span> <span class="text-cyber-cyan">42.5s</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-300">Knockout Frequency</span> <span class="text-cyber-magenta">34%</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-300">Skill Progression</span> <span class="text-cyber-green">+12% (7d)</span></div>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-xl border border-slate-800">
+                    <h4 class="text-xs text-slate-400 font-semibold mb-3 uppercase tracking-wider">Shot Selection Log</h4>
+                    <div class="space-y-2 text-sm font-cyber font-bold">
+                        <div class="flex justify-between items-center"><span class="text-slate-300">Banked/Angle</span> <span class="text-cyber-cyan">58%</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-300">Flat/Center</span> <span class="text-cyber-yellow">28%</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-300">Sliding Ridge</span> <span class="text-cyber-purple">14%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Column Section: Live Meta & Recent Matches -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Meta Combos Leaderboard -->
+                <div class="lg:col-span-2 glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <div>
+                            <h3 class="font-cyber font-bold text-lg text-white flex items-center space-x-2"><span>🔥</span><span>Top Competitive Meta Combos</span></h3>
+                            <p class="text-xs text-slate-400">High-tier tournament proven configurations with estimated win metrics</p>
+                        </div>
+                    </div>
+                    <div id="meta-combos-list" class="space-y-3"></div>
+                </div>
+
+                <!-- Recent Activity Feed -->
+                <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div class="border-b border-slate-800 pb-4 flex items-center justify-between">
+                        <h3 class="font-cyber font-bold text-lg text-white flex items-center space-x-2"><span>📜</span><span>Recent Match Feed</span></h3>
+                        <button onclick="switchTab('matches')" class="text-xs text-cyber-magenta hover:underline font-semibold">View All</button>
+                    </div>
+                    <div id="dashboard-recent-matches" class="space-y-3"></div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== VIEW 2: COMBO BUILDER & VISUALIZER ==================== -->
+        <section id="view-builder" class="tab-content hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="font-cyber text-2xl font-bold text-white">Interactive Combo Builder & Visualizer</h2>
+                    <p class="text-xs text-slate-400">Assemble parts, experiment with custom prototypes, and analyze side-by-side battle telemetries.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="saveCurrentCombo()" class="px-4 py-2 rounded-lg bg-cyber-green/20 border border-cyber-green/50 text-cyber-green text-xs font-cyber font-bold uppercase hover:bg-cyber-green/30 transition flex items-center space-x-2">
+                        <span>💾</span><span>Save Combo</span>
+                    </button>
+                    <button onclick="loadPresetComboModal()" class="px-4 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-xs font-cyber font-bold uppercase hover:text-white hover:border-slate-700 transition">
+                        <span>⚡ Load Meta Preset</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Builder Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                <!-- Left Column: Parts Selector & Experiment Lab -->
+                <div class="lg:col-span-4 space-y-5">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
+                        <h3 class="font-cyber text-sm font-bold text-cyber-cyan uppercase tracking-wider border-b border-slate-800 pb-2">1. Component Configuration</h3>
+                        
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-300 flex justify-between"><span>BLADE / LAYER</span><span id="builder-blade-weight" class="text-cyber-yellow font-cyber">35.2g</span></label>
+                            <select id="select-blade" onchange="updateComboBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-cyber-cyan focus:outline-none"></select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-300 flex justify-between"><span>RATCHET / DISC</span><span id="builder-ratchet-weight" class="text-cyber-yellow font-cyber">6.2g</span></label>
+                            <select id="select-ratchet" onchange="updateComboBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-cyber-cyan focus:outline-none"></select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-300 flex justify-between"><span>BIT / DRIVER</span><span id="builder-bit-weight" class="text-cyber-yellow font-cyber">2.4g</span></label>
+                            <select id="select-bit" onchange="updateComboBuilder()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-cyber-cyan focus:outline-none"></select>
+                        </div>
+
+                        <div class="space-y-1.5 pt-2">
+                            <label class="text-xs font-semibold text-slate-300">CUSTOM COMBO ALIAS</label>
+                            <input id="builder-custom-name" type="text" placeholder="e.g. Dran Sword Buster Prime" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-cyber-cyan focus:outline-none placeholder-slate-600">
+                        </div>
+
+                        <h3 class="font-cyber text-sm font-bold text-cyber-magenta uppercase tracking-wider border-b border-slate-800 pb-2 pt-4">2. Aesthetic Finishing</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[10px] text-slate-400 block mb-1">Blade Tint</label><input id="color-blade-tint" type="color" value="#06b6d4" onchange="drawComboCanvas()" class="w-full h-8 bg-slate-950 border border-slate-800 rounded cursor-pointer"></div>
+                            <div><label class="text-[10px] text-slate-400 block mb-1">Core Glow</label><input id="color-core-glow" type="color" value="#ec4899" onchange="drawComboCanvas()" class="w-full h-8 bg-slate-950 border border-slate-800 rounded cursor-pointer"></div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-xs text-slate-300 font-semibold">Disassembly View</span>
+                            <input id="toggle-explode-view" type="checkbox" onchange="drawComboCanvas()" class="w-4 h-4 rounded border-slate-800 bg-slate-900 text-cyber-cyan focus:ring-0">
+                        </div>
+                    </div>
+
+                    <!-- NEW: Experiment Lab -->
+                    <div class="glass-panel p-6 rounded-2xl border border-cyber-yellow/30 bg-cyber-yellow/5 space-y-4">
+                        <h3 class="font-cyber text-sm font-bold text-cyber-yellow uppercase tracking-wider border-b border-cyber-yellow/30 pb-2">🧪 Experiment Lab</h3>
+                        <p class="text-[10px] text-slate-400">Inject prototype parts into builder to test custom weights and physics vectors.</p>
+                        
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-semibold text-slate-300 flex justify-between"><span>PROTOTYPE WEIGHT (g)</span> <span id="exp-weight-val" class="text-white">35</span></label>
+                            <input type="range" id="exp-weight" min="20" max="50" value="35" oninput="document.getElementById('exp-weight-val').innerText = this.value; updatePrototypeStats()" class="w-full h-1 bg-slate-800 rounded accent-cyber-yellow">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-semibold text-slate-300 flex justify-between"><span>ATK VECTOR</span> <span id="exp-atk-val" class="text-white">50</span></label>
+                            <input type="range" id="exp-atk" min="10" max="100" value="50" oninput="document.getElementById('exp-atk-val').innerText = this.value; updatePrototypeStats()" class="w-full h-1 bg-slate-800 rounded accent-cyber-magenta">
+                        </div>
+                        <button onclick="injectPrototype()" class="w-full mt-2 py-2 rounded bg-slate-900 border border-cyber-yellow/50 text-cyber-yellow text-[10px] font-cyber font-bold uppercase hover:bg-cyber-yellow/20">Inject Prototype as Blade</button>
+                    </div>
+                </div>
+
+                <!-- Center Column: Visualizer & Heatmap -->
+                <div class="lg:col-span-4 space-y-5">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center space-y-4 relative overflow-hidden">
+                        <div class="text-center">
+                            <span class="text-xs font-cyber font-semibold text-cyber-cyan uppercase tracking-widest">3D Assembly View</span>
+                            <h4 id="builder-display-title" class="text-lg font-cyber font-bold text-white">Dran Sword 3-60F</h4>
+                        </div>
+                        <div class="relative w-64 h-64 flex items-center justify-center">
+                            <canvas id="combo-visualizer-canvas" width="280" height="280" class="w-full h-full rounded-2xl bg-slate-950 border border-slate-800 shadow-2xl"></canvas>
+                            <button onclick="toggleVisualizerSpin()" class="absolute bottom-2 right-2 p-2 rounded-lg bg-slate-900/80 border border-slate-700 text-xs text-cyber-cyan hover:bg-slate-800">🔄 Spin</button>
+                        </div>
+                        <div class="w-full space-y-2 text-xs">
+                            <div class="flex items-center justify-between text-slate-400"><span>Spin Velocity:</span><span id="visualizer-rpm-text" class="text-cyber-yellow font-cyber font-bold">1,200 RPM</span></div>
+                            <input id="slider-visualizer-rpm" type="range" min="0" max="3000" value="1200" oninput="updateVisualizerSpeed(this.value)" class="w-full h-1 bg-slate-800 rounded-lg accent-cyber-cyan">
+                        </div>
+                    </div>
+
+                    <!-- NEW: Heatmap / Win Streaks -->
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+                        <h3 class="font-cyber text-xs font-bold text-cyber-green uppercase tracking-wider border-b border-slate-800 pb-2 mb-3 flex items-center justify-between">
+                            <span>🔥 Launch Hotzones & Streaks</span>
+                            <span class="text-[10px] text-slate-400">Current Combo</span>
+                        </h3>
+                        <!-- Mock Heatmap Grid -->
+                        <div class="grid grid-cols-4 grid-rows-2 gap-1 h-20 w-full mb-3">
+                            <div class="heatmap-cell bg-rose-500/80 rounded" title="Edge Launch: High Burst Risk"></div>
+                            <div class="heatmap-cell bg-cyber-green/40 rounded" title="Mid-Edge: Good X-Dash"></div>
+                            <div class="heatmap-cell bg-cyber-green/80 rounded" title="Mid-Center: Optimal Balance"></div>
+                            <div class="heatmap-cell bg-cyber-cyan/30 rounded" title="Center: Passive"></div>
+                            <div class="heatmap-cell bg-rose-600/90 rounded"></div>
+                            <div class="heatmap-cell bg-cyber-yellow/60 rounded"></div>
+                            <div class="heatmap-cell bg-cyber-green/90 rounded border border-cyber-green"></div>
+                            <div class="heatmap-cell bg-cyber-cyan/50 rounded"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-cyber text-slate-400">
+                            <span>Highest Streak: <span class="text-cyber-yellow font-bold">8 Wins</span></span>
+                            <span>Optimal Angle: <span class="text-cyber-cyan font-bold">15°-22°</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Live Calculated Stat Metrics -->
+                <div class="lg:col-span-4 space-y-5 glass-panel p-6 rounded-2xl border border-slate-800">
+                    <h3 class="font-cyber text-sm font-bold text-cyber-yellow uppercase tracking-wider border-b border-slate-800 pb-2">3. Calculated Telemetry Stats</h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1"><span class="text-cyber-magenta">ATTACK POWER</span><span id="stat-val-attack" class="text-white font-cyber">88</span></div>
+                            <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800"><div id="stat-bar-attack" class="h-full bg-cyber-magenta transition-all duration-300" style="width: 88%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1"><span class="text-cyber-purple">DEFENSE</span><span id="stat-val-defense" class="text-white font-cyber">45</span></div>
+                            <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800"><div id="stat-bar-defense" class="h-full bg-cyber-purple transition-all duration-300" style="width: 45%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1"><span class="text-cyber-yellow">STAMINA</span><span id="stat-val-stamina" class="text-white font-cyber">32</span></div>
+                            <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800"><div id="stat-bar-stamina" class="h-full bg-cyber-yellow transition-all duration-300" style="width: 32%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1"><span class="text-cyber-cyan">RAIL SPEED (X-DASH)</span><span id="stat-val-speed" class="text-white font-cyber">92</span></div>
+                            <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800"><div id="stat-bar-speed" class="h-full bg-cyber-cyan transition-all duration-300" style="width: 92%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1"><span class="text-cyber-green">BURST RESISTANCE</span><span id="stat-val-burst" class="text-white font-cyber">75</span></div>
+                            <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800"><div id="stat-bar-burst" class="h-full bg-cyber-green transition-all duration-300" style="width: 75%;"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+                        <span class="text-slate-400 font-semibold">Total Assembly Weight:</span>
+                        <span id="stat-val-weight" class="text-lg font-cyber font-bold text-cyber-cyan">43.8 grams</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+                        <span class="text-slate-400 font-semibold">Primary Archetype:</span>
+                        <span id="stat-val-archetype" class="px-2.5 py-1 rounded bg-cyber-magenta/20 border border-cyber-magenta/40 text-cyber-magenta font-cyber font-bold">ATTACK</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Upgraded Side-by-side Combo Comparison Matrix -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-800 pb-3 gap-3">
+                    <h3 class="font-cyber font-bold text-base text-white flex items-center space-x-2">
+                        <span>⚖️</span><span>Advanced Matchup Comparison Matrix</span>
+                    </h3>
+                    <div class="flex items-center space-x-2 text-xs">
+                        <select class="bg-slate-900 border border-slate-700 text-slate-300 rounded px-2 py-1 focus:outline-none">
+                            <option>Stadium: Xtreme Dash</option>
+                            <option>Stadium: Standard</option>
+                        </select>
+                        <select class="bg-slate-900 border border-slate-700 text-slate-300 rounded px-2 py-1 focus:outline-none">
+                            <option>Ruleset: 3on3</option>
+                            <option>Ruleset: 1on1</option>
+                            <option>Ruleset: Deck</option>
+                        </select>
+                        <select class="bg-slate-900 border border-slate-700 text-cyber-yellow rounded px-2 py-1 focus:outline-none">
+                            <option>Opp: Attack</option>
+                            <option>Opp: Stamina</option>
+                            <option>Opp: Defense</option>
+                            <option>Opp: Balance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <!-- Combo A Box -->
+                    <div class="lg:col-span-5 p-4 rounded-xl bg-slate-950/80 border border-cyber-cyan/40 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-cyber-cyan font-bold font-cyber">COMBO A (CURRENT)</span>
+                            <span id="comp-combo-a-weight" class="text-slate-400">43.8g</span>
+                        </div>
+                        <h4 id="comp-combo-a-title" class="font-cyber font-bold text-base text-white truncate">Dran Sword 3-60F</h4>
+                        <div class="grid grid-cols-5 gap-1 text-center text-[10px] pt-2">
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">ATK</div><div id="comp-a-atk" class="font-bold text-white">88</div></div>
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">DEF</div><div id="comp-a-def" class="font-bold text-white">45</div></div>
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">STA</div><div id="comp-a-sta" class="font-bold text-white">32</div></div>
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">SPD</div><div id="comp-a-spd" class="font-bold text-white">92</div></div>
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">BST</div><div id="comp-a-bst" class="font-bold text-white">75</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Delta / Uncertainty Center Box -->
+                    <div class="lg:col-span-2 flex flex-col items-center justify-center space-y-2 p-2 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Stat Delta</span>
+                        <div class="grid grid-cols-1 gap-1 w-full text-center text-[10px] font-cyber font-bold">
+                            <div id="delta-atk" class="text-cyber-green">+53 ATK</div>
+                            <div id="delta-def" class="text-rose-400">-17 DEF</div>
+                            <div id="delta-sta" class="text-rose-400">-58 STA</div>
+                            <div id="delta-spd" class="text-cyber-green">+52 SPD</div>
+                        </div>
+                        <div class="text-[8px] text-slate-500 mt-2 text-center">Sample Size: 124<br>Uncertainty: ±3.4%</div>
+                    </div>
+
+                    <!-- Combo B Select Box -->
+                    <div class="lg:col-span-5 p-4 rounded-xl bg-slate-950/80 border border-cyber-magenta/40 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-cyber-magenta font-bold font-cyber">COMBO B (OPPONENT)</span>
+                            <select id="select-compare-b" onchange="updateComparisonMatrix()" class="bg-slate-900 border border-slate-800 text-xs text-white rounded px-2 py-0.5 focus:outline-none w-32 truncate"></select>
+                        </div>
+                        <h4 id="comp-combo-b-title" class="font-cyber font-bold text-base text-white truncate">Wizard Arrow 4-80B</h4>
+                        <div class="grid grid-cols-5 gap-1 text-center text-[10px] pt-2">
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">ATK</div><div id="comp-b-atk" class="font-bold text-white">35</div></div>
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">DEF</div><div id="comp-b-def" class="font-bold text-white">62</div></div>
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">STA</div><div id="comp-b-sta" class="font-bold text-white">90</div></div>
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">SPD</div><div id="comp-b-spd" class="font-bold text-white">40</div></div>
+                            <div class="bg-slate-900 p-1.5 rounded"><div class="text-slate-400">BST</div><div id="comp-b-bst" class="font-bold text-white">60</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="comparison-verdict-box" class="p-3 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 text-xs text-center font-medium text-slate-200">
+                    <!-- Updated via JS -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== VIEW 3: PART PERFORMANCE EXPLORER ==================== -->
+        <section id="view-explorer" class="tab-content hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="font-cyber text-2xl font-bold text-white">Bit & Part Performance Explorer</h2>
+                    <p class="text-xs text-slate-400">Searchable catalog with deep bit friction telemetry, stamina retention, and burst resistance.</p>
+                </div>
+                <div class="relative w-full md:w-72">
+                    <input id="explorer-search-input" type="text" placeholder="Search parts by name..." onkeyup="filterExplorerGrid()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-cyber-cyan focus:outline-none pl-9">
+                    <span class="absolute left-3 top-3 text-slate-500 text-xs">🔍</span>
+                </div>
+            </div>
+
+            <!-- Filter Category Pills -->
+            <div class="flex flex-wrap gap-2 text-xs font-semibold">
+                <button onclick="setExplorerFilter('all')" class="filter-pill px-4 py-2 rounded-lg bg-cyber-cyan text-slate-950 font-bold">All Parts</button>
+                <button onclick="setExplorerFilter('Blade')" class="filter-pill px-4 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">Blades / Layers</button>
+                <button onclick="setExplorerFilter('Ratchet')" class="filter-pill px-4 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">Ratchets</button>
+                <button onclick="setExplorerFilter('Bit')" class="filter-pill px-4 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">Bits / Drivers</button>
+            </div>
+
+            <div id="explorer-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <!-- Cards rendered dynamically via JS -->
+            </div>
+        </section>
+
+
+        <!-- ==================== VIEW 4: ARENA PHYSICS SIMULATOR ==================== -->
+        <section id="view-simulator" class="tab-content hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="font-cyber text-2xl font-bold text-white">Launch Labs & Arena Physics Simulator</h2>
+                    <p class="text-xs text-slate-400">2D Canvas physics simulation featuring Xtreme Dash gear rails, positional presets, spin direction, and launch tilt.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="resetSimulationArena()" class="px-4 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-xs font-cyber font-bold hover:text-white transition">🔄 Reset</button>
+                    <button onclick="launchSimulation()" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-cyber-cyan via-blue-600 to-cyber-magenta text-slate-950 font-cyber font-bold text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-[1.02] active:scale-95 transition">🚀 LET IT RIP!</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left Control Panel: Expanded Launch Configuration -->
+                <div class="lg:col-span-4 glass-panel p-6 rounded-2xl border border-slate-800 space-y-5 h-fit">
+                    <h3 class="font-cyber text-sm font-bold text-cyber-cyan uppercase tracking-wider border-b border-slate-800 pb-2">1. Advance Launch Params</h3>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-300">STADIUM TYPE</label>
+                        <select id="sim-select-stadium" onchange="changeStadiumType(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-cyber-cyan">
+                            <option value="xtreme">Xtreme Dash Stadium</option>
+                            <option value="standard">Standard Beystadium</option>
+                            <option value="heavy">Heavy Ridge Stadium</option>
+                        </select>
+                    </div>
+
+                    <!-- Beyblade 1 Config -->
+                    <div class="p-3.5 rounded-xl bg-slate-950/80 border border-cyber-cyan/30 space-y-3">
+                        <div class="flex justify-between items-center text-xs font-cyber font-bold text-cyber-cyan">
+                            <span>BEYBLADE 1 (PLAYER)</span><span id="sim-p1-title">Dran Sword</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-slate-400">Position Preset</label>
+                                <select id="sim-p1-pos" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-[10px] text-white">
+                                    <option value="center">Center Drop</option>
+                                    <option value="mid">Mid Offset</option>
+                                    <option value="edge">Outer Edge</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400">Spin Direction</label>
+                                <select id="sim-p1-spin" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-[10px] text-white">
+                                    <option value="right">Right Spin</option>
+                                    <option value="left">Left Spin</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 pt-1">
+                            <div class="flex justify-between text-[11px] text-slate-400"><span>Launcher Tilt:</span><span id="sim-p1-tilt-val" class="text-white font-cyber">15°</span></div>
+                            <input id="sim-p1-tilt" type="range" min="0" max="45" value="15" oninput="document.getElementById('sim-p1-tilt-val').innerText = this.value + '°'" class="w-full h-1 bg-slate-800 rounded accent-cyber-cyan">
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[11px] text-slate-400"><span>Launch Power:</span><span id="sim-p1-power-val" class="text-cyber-yellow font-cyber font-bold">95%</span></div>
+                            <input id="sim-p1-power" type="range" min="30" max="100" value="95" oninput="document.getElementById('sim-p1-power-val').innerText = this.value + '%'" class="w-full h-1 bg-slate-800 rounded accent-cyber-cyan">
+                        </div>
+                    </div>
+
+                    <!-- Beyblade 2 Config -->
+                    <div class="p-3.5 rounded-xl bg-slate-950/80 border border-cyber-magenta/30 space-y-3">
+                        <div class="flex justify-between items-center text-xs font-cyber font-bold text-cyber-magenta">
+                            <span>BEYBLADE 2 (RIVAL)</span>
+                            <select id="sim-select-p2-preset" onchange="updateSimP2Preset(this.value)" class="bg-slate-900 border border-slate-800 text-[10px] text-white rounded px-1 py-0.5 w-24 truncate"></select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-slate-400">Opp Archetype</label>
+                                <select id="sim-p2-arch" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-[10px] text-white">
+                                    <option value="Stamina">Stamina</option>
+                                    <option value="Attack">Attack</option>
+                                    <option value="Defense">Defense</option>
+                                    <option value="Balance">Balance</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400">Spin Direction</label>
+                                <select id="sim-p2-spin" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-[10px] text-white">
+                                    <option value="right">Right Spin</option>
+                                    <option value="left">Left Spin</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 pt-1">
+                            <div class="flex justify-between text-[11px] text-slate-400"><span>Launch Power:</span><span id="sim-p2-power-val" class="text-cyber-yellow font-cyber font-bold">90%</span></div>
+                            <input id="sim-p2-power" type="range" min="30" max="100" value="90" oninput="document.getElementById('sim-p2-power-val').innerText = this.value + '%'" class="w-full h-1 bg-slate-800 rounded accent-cyber-magenta">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center/Right Column: Interactive Canvas Stadium -->
+                <div class="lg:col-span-8 space-y-4">
+                    <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden">
+                        <canvas id="arena-canvas" width="600" height="480" class="w-full h-[420px] rounded-xl bg-slate-950 border border-slate-800 shadow-2xl cursor-crosshair"></canvas>
+                        <div id="sim-status-badge" class="absolute top-6 left-6 px-3 py-1.5 rounded-lg bg-slate-950/90 border border-cyber-cyan/40 text-xs font-cyber text-cyber-cyan flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-cyber-cyan animate-ping"></span><span id="sim-status-text">STADIUM READY — CLICK LAUNCH</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-cyber">
+                        <div class="glass-panel p-3 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400">P1 VELOCITY</div><div id="telemetry-p1-speed" class="text-base font-bold text-cyber-cyan">0.0 km/h</div>
+                        </div>
+                        <div class="glass-panel p-3 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400">P1 SPIN RPM</div><div id="telemetry-p1-rpm" class="text-base font-bold text-cyber-yellow">0 RPM</div>
+                        </div>
+                        <div class="glass-panel p-3 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400">P2 VELOCITY</div><div id="telemetry-p2-speed" class="text-base font-bold text-cyber-magenta">0.0 km/h</div>
+                        </div>
+                        <div class="glass-panel p-3 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400">P2 SPIN RPM</div><div id="telemetry-p2-rpm" class="text-base font-bold text-cyber-yellow">0 RPM</div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 text-xs font-mono space-y-1 h-28 overflow-y-auto" id="sim-event-console">
+                        <div class="text-slate-500">[SYSTEM] Arena physics engine initialized. Ready for launch.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== VIEW 5: MATCH TRACKER & TOURNAMENT LOG ==================== -->
+        <section id="view-matches" class="tab-content hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="font-cyber text-2xl font-bold text-white">Match Tracker & Tournament Log</h2>
+                    <p class="text-xs text-slate-400">Log battle outcomes, calculate official W/L/D ratios, and track points (3pt Xtreme, 2pt Burst/Over, 1pt Spin).</p>
+                </div>
+                <button onclick="openLogMatchModal()" class="px-5 py-2.5 rounded-lg bg-cyber-cyan text-slate-950 font-cyber font-bold text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-[1.02] active:scale-95 transition">
+                    ➕ Log New Battle
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2">
+                    <span class="text-xs text-slate-400 font-semibold">MATCH VICTORIES</span>
+                    <div class="text-3xl font-cyber font-bold text-cyber-green" id="matches-total-wins">0 W - 0 L - 0 D</div>
+                    <p class="text-[11px] text-slate-400">Win Rate: <span id="matches-winrate-pct" class="text-white font-bold">0%</span></p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2">
+                    <span class="text-xs text-slate-400 font-semibold">MOST FREQUENT FINISH</span>
+                    <div class="text-3xl font-cyber font-bold text-cyber-magenta" id="matches-top-finish">Xtreme Finish</div>
+                    <p class="text-[11px] text-slate-400">3 Point Highest-Tier Execution</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-2">
+                    <span class="text-xs text-slate-400 font-semibold">TOTAL TOURNAMENT POINTS</span>
+                    <div class="text-3xl font-cyber font-bold text-cyber-yellow" id="matches-total-points">0 PTS</div>
+                    <p class="text-[11px] text-slate-400">Points earned across all valid finishes</p>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="font-cyber text-sm font-bold text-white">Official Battle Log</h3>
+                    <button onclick="clearMatchHistory()" class="text-xs text-rose-400 hover:underline">Clear Log</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-950 font-cyber text-[10px] text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">DATE</th>
+                                <th class="p-3.5">YOUR COMBO</th>
+                                <th class="p-3.5">OPPONENT COMBO</th>
+                                <th class="p-3.5">FINISH TYPE</th>
+                                <th class="p-3.5 text-center">PTS EARNED</th>
+                                <th class="p-3.5 text-right">OUTCOME</th>
+                            </tr>
+                        </thead>
+                        <tbody id="match-history-table-body" class="divide-y divide-slate-800/60"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== VIEW 6: SKILL TREE & BLADER TRAINING ==================== -->
+        <section id="view-skills" class="tab-content hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="font-cyber text-2xl font-bold text-white">Skill Tree & Technical Training</h2>
+                    <p class="text-xs text-slate-400">Unlock launch nodes, log practice drops, and monitor your consistency and RPM metrics.</p>
+                </div>
+                <div class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-cyber font-bold text-cyber-yellow">
+                    AVAILABLE XP: <span id="skill-tree-xp-display">650 XP</span>
+                </div>
+            </div>
+
+            <!-- Interactive Skill Tree Graph -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+                <h3 class="font-cyber text-sm font-bold text-cyber-cyan uppercase tracking-wider border-b border-slate-800 pb-2">Launch Mastery Tree</h3>
+                <div id="skill-tree-nodes-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Nodes rendered dynamically -->
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Launch Technique Codex -->
+                <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="font-cyber text-sm font-bold text-cyber-magenta uppercase tracking-wider border-b border-slate-800 pb-2">Official Technique Codex</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                            <div class="text-cyber-cyan font-cyber font-bold text-sm">1. Flat Shoot</div>
+                            <p class="text-xs text-slate-300 leading-relaxed">Hold launcher parallel to stadium. Keeps flat bit tips spinning smoothly near center.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                            <div class="text-cyber-magenta font-cyber font-bold text-sm">2. Banked Shoot</div>
+                            <p class="text-xs text-slate-300 leading-relaxed">Tilt launcher at 15-25 degrees. Forces flat/gear bits onto the outer rim for X-Dash!</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                            <div class="text-cyber-purple font-cyber font-bold text-sm">3. Sliding Shoot</div>
+                            <p class="text-xs text-slate-300 leading-relaxed">Pull rip-cord with a slight forward slide movement. Positions Bey directly into counters.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                            <div class="text-cyber-yellow font-cyber font-bold text-sm">4. Weak Shoot</div>
+                            <p class="text-xs text-slate-300 leading-relaxed">Deliberately pulling with less force to induce spin equalization against opposite spin Beys.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Technical Practice Drills Logger -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="font-cyber text-sm font-bold text-cyber-green uppercase tracking-wider border-b border-slate-800 pb-2">Technical Practice Log</h3>
+                    <p class="text-[10px] text-slate-400 mb-2">Log your physical drops to calculate angle consistency and RPM generation.</p>
+                    <div class="space-y-3 text-xs">
+                        <input type="text" placeholder="Drill Goal (e.g., Hit Outer Rail)" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" placeholder="Est. RPM" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white">
+                            <input type="number" placeholder="Angle (°)" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white">
+                        </div>
+                        <button onclick="logPractice()" class="w-full py-2 rounded bg-cyber-green text-slate-950 font-cyber font-bold">Log Repetition</button>
+                    </div>
+                    <div id="practice-logs" class="pt-4 border-t border-slate-800 space-y-2 max-h-32 overflow-y-auto">
+                        <div class="text-[10px] text-slate-400 flex justify-between"><span>Hit Outer Rail</span> <span class="text-cyber-cyan">2800 RPM | 22°</span></div>
+                        <div class="text-[10px] text-slate-400 flex justify-between"><span>Hit Outer Rail</span> <span class="text-cyber-cyan">2750 RPM | 18°</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="glass-panel border-t border-slate-800 mt-12 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-2">
+            <div>PS BEYBLADE X-HUB &copy; 2026 — Designed for Competitive Beyblade Bladers worldwide</div>
+            <div class="flex space-x-4 text-slate-400">
+                <span class="hover:text-cyber-cyan cursor-pointer" onclick="switchTab('dashboard')">Home</span>
+                <span class="hover:text-cyber-cyan cursor-pointer" onclick="switchTab('builder')">Builder</span>
+                <span class="hover:text-cyber-cyan cursor-pointer" onclick="switchTab('simulator')">Simulator</span>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ==================== MODALS ==================== -->
+    <div id="modal-log-match" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel p-6 rounded-2xl border border-slate-800 max-w-md w-full space-y-4 relative">
+            <button onclick="closeLogMatchModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
+            <h3 class="font-cyber font-bold text-lg text-white">Log Official Battle Outcome</h3>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="text-slate-300 block mb-1 font-semibold">YOUR COMBO</label>
+                    <select id="modal-match-p1-combo" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white"></select>
+                </div>
+                <div>
+                    <label class="text-slate-300 block mb-1 font-semibold">OPPONENT COMBO ALIAS</label>
+                    <input id="modal-match-p2-name" type="text" placeholder="e.g. Phoenix Wing 9-60R" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white">
+                </div>
+                <div>
+                    <label class="text-slate-300 block mb-1 font-semibold">FINISH TYPE</label>
+                    <select id="modal-match-finish-type" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white">
+                        <option value="Xtreme Finish">Xtreme Finish (3 Points)</option>
+                        <option value="Burst Finish">Burst Finish (2 Points)</option>
+                        <option value="Over Finish">Over Finish (2 Points)</option>
+                        <option value="Spin Finish">Spin Finish (1 Point)</option>
+                        <option value="Draw">Draw (0 Points)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-slate-300 block mb-1 font-semibold">OUTCOME</label>
+                    <select id="modal-match-outcome" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white">
+                        <option value="VICTORY">VICTORY (WIN)</option>
+                        <option value="DEFEAT">DEFEAT (LOSS)</option>
+                        <option value="DRAW">DRAW</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end space-x-3">
+                <button onclick="closeLogMatchModal()" class="px-4 py-2 rounded-lg bg-slate-900 text-slate-300 text-xs">Cancel</button>
+                <button onclick="saveLoggedMatch()" class="px-5 py-2 rounded-lg bg-cyber-cyan text-slate-950 font-cyber font-bold text-xs">Save Battle Log</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT APP ENGINE -->
+    <script>
+        /* ==================== 1. DATABASE & MOCK DATA ==================== */
+        const PARTS_DATABASE = {
+            blades: [
+                { id: 'b-dran-sword', name: 'Dran Sword', type: 'Attack', spin: 'Right', weight: 35.2, atk: 85, def: 30, sta: 25, spd: 90, bst: 75, recoil: 'High', desc: 'Triple-slashed metallic blades specializing in aggressive Xtreme Dash impacts.' },
+                { id: 'b-hells-scythe', name: 'Hells Scythe', type: 'Balance', spin: 'Right', weight: 33.8, atk: 60, def: 55, sta: 65, spd: 60, bst: 65, recoil: 'Medium', desc: 'Four smooth angled scythe blades providing ideal balance between attack and spin retention.' },
+                { id: 'b-wizard-arrow', name: 'Wizard Arrow', type: 'Stamina', spin: 'Right', weight: 32.5, atk: 30, def: 50, sta: 90, spd: 40, bst: 55, recoil: 'Low', desc: 'Aerodynamic circular perimeter creates extreme centrifugal momentum.' },
+                { id: 'b-knight-shield', name: 'Knight Shield', type: 'Defense', spin: 'Right', weight: 34.1, atk: 35, def: 88, sta: 50, spd: 35, bst: 80, recoil: 'Low', desc: 'Multi-layered ridge armor engineered to absorb heavy recoil collisions.' },
+                { id: 'b-phoenix-wing', name: 'Phoenix Wing', type: 'Attack', spin: 'Right', weight: 38.0, atk: 95, def: 40, sta: 30, spd: 85, bst: 85, recoil: 'Extreme', desc: 'Heavy metal wing distribution dealing destructive knockout force.' },
+                { id: 'b-cobalt-drake', name: 'Cobalt Drake', type: 'Attack', spin: 'Right', weight: 37.5, atk: 92, def: 42, sta: 35, spd: 88, bst: 80, recoil: 'Extreme', desc: 'Rare heavy dragon armor layer designed for upper attack strikes.' },
+                { id: 'b-unicorn-sting', name: 'Unicorn Sting', type: 'Balance', spin: 'Right', weight: 34.6, atk: 65, def: 65, sta: 60, spd: 60, bst: 70, recoil: 'Medium', desc: 'Asymmetric dual-side design providing both upper attack and deflection.' }
+            ],
+            ratchets: [
+                { id: 'r-3-60', name: '3-60', protrusions: 3, height: 60, weight: 6.2, atk: 5, def: 3, sta: 3, spd: 5, bst: 10, desc: '3 protruding contact points with low 60mm height.' },
+                { id: 'r-4-60', name: '4-60', protrusions: 4, height: 60, weight: 6.4, atk: 3, def: 6, sta: 4, spd: 3, bst: 12, desc: 'Symmetrical 4-point distribution.' },
+                { id: 'r-5-60', name: '5-60', protrusions: 5, height: 60, weight: 6.6, atk: 4, def: 5, sta: 5, spd: 4, bst: 15, desc: 'Smooth 5-wing perimeter for reduced burst risk.' },
+                { id: 'r-9-60', name: '9-60', protrusions: 9, height: 60, weight: 6.8, atk: 3, def: 8, sta: 6, spd: 3, bst: 18, desc: 'Dense 9-point perimeter offering supreme burst resistance.' },
+                { id: 'r-4-80', name: '4-80', protrusions: 4, height: 80, weight: 6.9, atk: 6, def: 4, sta: 5, spd: 2, bst: 8, desc: 'High 80mm clearance for downward smash attack.' }
+            ],
+            bits: [
+                { id: 'bt-flat', name: 'Flat (F)', type: 'Attack', weight: 2.4, atk: 25, def: 5, sta: 5, spd: 30, bst: 20, desc: 'Plastic flat tip catching the gear rail for immediate Xtreme Dash.' },
+                { id: 'bt-taper', name: 'Taper (T)', type: 'Balance', weight: 2.3, atk: 15, def: 15, sta: 15, spd: 15, bst: 15, desc: 'Angled tip providing center control or rail speed depending on launch angle.' },
+                { id: 'bt-ball', name: 'Ball (B)', type: 'Stamina', weight: 2.2, atk: 2, def: 18, sta: 30, spd: 5, bst: 10, desc: 'Spherical tip offering minimal friction and long center endurance.' },
+                { id: 'bt-needle', name: 'Needle (N)', type: 'Defense', weight: 2.3, atk: 2, def: 28, sta: 18, spd: 2, bst: 22, desc: 'Sharp point tip maintaining steadfast center position under impact.' },
+                { id: 'bt-rush', name: 'Rush (R)', type: 'Attack', weight: 2.5, atk: 22, def: 8, sta: 8, spd: 32, bst: 18, desc: 'Gear teeth fine-tuned for rapid continuous rail dashes.' },
+                { id: 'bt-orb', name: 'Orb (O)', type: 'Stamina', weight: 2.2, atk: 3, def: 20, sta: 32, spd: 4, bst: 12, desc: 'Small diameter smooth ball tip.' }
+            ]
+        };
+
+        const PRESET_COMBOS = [
+            { name: 'Dran Sword 3-60F', blade: 'b-dran-sword', ratchet: 'r-3-60', bit: 'bt-flat', wins: 42, losses: 8 },
+            { name: 'Phoenix Wing 9-60R', blade: 'b-phoenix-wing', ratchet: 'r-9-60', bit: 'bt-rush', wins: 38, losses: 6 },
+            { name: 'Wizard Arrow 4-80B', blade: 'b-wizard-arrow', ratchet: 'r-4-80', bit: 'bt-ball', wins: 31, losses: 12 },
+            { name: 'Knight Shield 5-60N', blade: 'b-knight-shield', ratchet: 'r-5-60', bit: 'bt-needle', wins: 29, losses: 14 }
+        ];
+
+        let SKILL_TREE_DATA = [
+            { id: 's1', name: 'Power Rip', cost: 100, unlocked: true, icon: '💥', desc: '+10% Launch Velocity' },
+            { id: 's2', name: 'X-Dash Aim', cost: 200, unlocked: true, icon: '⚡', desc: '+15% Rail Gear Speed' },
+            { id: 's3', name: 'Stamina Conserve', cost: 300, unlocked: false, icon: '🌀', desc: '-12% Friction Decay' },
+            { id: 's4', name: 'Counter Strike', cost: 500, unlocked: false, icon: '🛡️', desc: '+20% Deflection' },
+            { id: 's5', name: 'Banked Master', cost: 600, unlocked: false, icon: '📐', desc: 'Precision angle control' },
+            { id: 's6', name: 'Deck Reader', cost: 800, unlocked: false, icon: '👁️', desc: 'Archetype prediction bonus' }
+        ];
+
+        /* ==================== 2. WEB AUDIO & JSON SYNC ==================== */
+        let sfxEnabled = true;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
+        function playSFX(type) {
+            if (!sfxEnabled) return;
+            initAudio(); if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            if (type === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+                gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+            } else if (type === 'launch') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+            } else if (type === 'burst') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(120, now); osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+                gain.gain.setValueAtTime(0.5, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+            }
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + 0.4);
+        }
+        function toggleSFX() {
+            sfxEnabled = !sfxEnabled;
+            document.getElementById('sfx-icon-on').classList.toggle('hidden', !sfxEnabled);
+            document.getElementById('sfx-icon-off').classList.toggle('hidden', sfxEnabled);
+        }
+
+        // JSON SYNC
+        function exportDataJSON() {
+            playSFX('click');
+            const dataStr = JSON.stringify(state, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ps_bx_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert("✅ Backup Exported. Save this file to Google Drive.");
+        }
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    state = JSON.parse(e.target.result);
+                    saveCombosToStorage(); saveMatchesToStorage();
+                    renderDashboard(); renderMatchHistoryTable(); renderSkillTree(); updateXPDisplay();
+                    alert("📂 Data Imported Successfully!");
+                } catch(err) { alert("❌ Invalid JSON Backup"); }
+            };
+            reader.readAsText(file);
+        }
+
+        /* ==================== 3. APP STATE & LOCALSTORAGE ==================== */
+        let state = {
+            savedCombos: [], matchLogs: [], userXP: 650, userLevel: 5, currentView: 'dashboard'
+        };
+
+        function loadLocalStorageData() {
+            const sc = localStorage.getItem('ps_bey_combos');
+            if (sc) state.savedCombos = JSON.parse(sc);
+            else {
+                state.savedCombos = [
+                    { name: 'Dran Sword Custom', bladeId: 'b-dran-sword', ratchetId: 'r-3-60', bitId: 'bt-flat' },
+                    { name: 'Phoenix Wing Ultra', bladeId: 'b-phoenix-wing', ratchetId: 'r-9-60', bitId: 'bt-rush' }
+                ];
+                saveCombosToStorage();
+            }
+
+            const sm = localStorage.getItem('ps_bey_matches');
+            if (sm) state.matchLogs = JSON.parse(sm);
+            else {
+                state.matchLogs = [
+                    { date: '2026-10-18', p1: 'Dran Sword 3-60F', p2: 'Wizard Arrow 4-80B', finish: 'Xtreme Finish', pts: 3, outcome: 'VICTORY' },
+                    { date: '2026-10-19', p1: 'Dran Sword 3-60F', p2: 'Knight Shield 5-60N', finish: 'Spin Finish', pts: 1, outcome: 'VICTORY' },
+                    { date: '2026-10-20', p1: 'Dran Sword 3-60F', p2: 'Phoenix Wing 9-60R', finish: 'Burst Finish', pts: 2, outcome: 'VICTORY' }
+                ];
+                saveMatchesToStorage();
+            }
+            updateGlobalCounters();
+        }
+
+        function saveCombosToStorage() { localStorage.setItem('ps_bey_combos', JSON.stringify(state.savedCombos)); updateGlobalCounters(); }
+        function saveMatchesToStorage() { localStorage.setItem('ps_bey_matches', JSON.stringify(state.matchLogs)); updateGlobalCounters(); }
+
+        function updateGlobalCounters() {
+            document.getElementById('combos-count-badge').innerText = state.savedCombos.length;
+            document.getElementById('metric-combos-count').innerText = state.savedCombos.length;
+            document.getElementById('metric-matches-count').innerText = state.matchLogs.length;
+
+            const wins = state.matchLogs.filter(m => m.outcome === 'VICTORY').length;
+            const rate = state.matchLogs.length ? Math.round((wins / state.matchLogs.length) * 100) : 0;
+            document.getElementById('metric-winrate').innerText = rate + '%';
+
+            // Detailed finishes
+            let xW=0, bW=0, oW=0, sW=0;
+            state.matchLogs.forEach(m => {
+                if(m.outcome === 'VICTORY') {
+                    if(m.finish.includes('Xtreme')) xW++;
+                    if(m.finish.includes('Burst')) bW++;
+                    if(m.finish.includes('Over')) oW++;
+                    if(m.finish.includes('Spin')) sW++;
+                }
+            });
+            document.getElementById('dash-xtreme-wins').innerText = xW;
+            document.getElementById('dash-burst-wins').innerText = bW;
+            document.getElementById('dash-over-wins').innerText = oW;
+            document.getElementById('dash-spin-wins').innerText = sW;
+        }
+
+        /* ==================== 4. TAB NAVIGATION ==================== */
+        function switchTab(tabId) {
+            playSFX('click');
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('text-cyber-cyan', 'bg-slate-900', 'border', 'border-cyber-cyan/30', 'shadow-neon-cyan');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById(`nav-btn-${tabId}`);
+            if (activeBtn) activeBtn.classList.add('text-cyber-cyan', 'bg-slate-900', 'border', 'border-cyber-cyan/30', 'shadow-neon-cyan');
+            document.getElementById('mobile-nav').classList.add('hidden');
+
+            if (tabId === 'builder') setTimeout(drawComboCanvas, 50);
+            else if (tabId === 'simulator') setTimeout(initArenaCanvas, 50);
+        }
+        function toggleMobileNav() { document.getElementById('mobile-nav').classList.toggle('hidden'); }
+
+        /* ==================== 5. DASHBOARD ==================== */
+        function renderDashboard() {
+            document.getElementById('meta-combos-list').innerHTML = PRESET_COMBOS.map((combo, idx) => `
+                <div class="glass-panel-interactive p-3.5 rounded-xl flex items-center justify-between border border-slate-800">
+                    <div class="flex items-center space-x-3">
+                        <span class="font-cyber font-bold text-sm ${idx === 0 ? 'text-cyber-yellow' : 'text-slate-500'}">#0${idx + 1}</span>
+                        <div>
+                            <div class="font-cyber font-bold text-xs text-white">${combo.name}</div>
+                            <div class="text-[10px] text-slate-400">Win Rate: <span class="text-cyber-green font-bold">${Math.round((combo.wins/(combo.wins+combo.losses))*100)}%</span></div>
+                        </div>
+                    </div>
+                    <button onclick="loadPresetIntoBuilder('${combo.blade}', '${combo.ratchet}', '${combo.bit}')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-cyber-cyan font-semibold">Load Build</button>
+                </div>
+            `).join('');
+
+            const rCont = document.getElementById('dashboard-recent-matches');
+            if (!state.matchLogs.length) rCont.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">No battles logged.</div>`;
+            else rCont.innerHTML = state.matchLogs.slice(0, 4).map(m => `
+                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+                    <div>
+                        <div class="font-semibold text-white">${m.p1} vs ${m.p2}</div>
+                        <div class="text-[10px] text-slate-400">${m.finish} (${m.pts} pts)</div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-cyber font-bold ${m.outcome === 'VICTORY' ? 'bg-cyber-green/20 text-cyber-green' : (m.outcome === 'DRAW' ? 'bg-cyber-yellow/20 text-cyber-yellow' : 'bg-rose-500/20 text-rose-400')}">${m.outcome}</span>
+                </div>
+            `).join('');
+        }
+
+        /* ==================== 6. COMBO BUILDER ==================== */
+        let visualizerSpeed = 1200; let visualizerAnimId = null; let visualizerAngle = 0;
+
+        function initComboBuilderSelects() {
+            document.getElementById('select-blade').innerHTML = PARTS_DATABASE.blades.map(b => `<option value="${b.id}">${b.name} (${b.type})</option>`).join('');
+            document.getElementById('select-ratchet').innerHTML = PARTS_DATABASE.ratchets.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+            document.getElementById('select-bit').innerHTML = PARTS_DATABASE.bits.map(bt => `<option value="${bt.id}">${bt.name} (${bt.type})</option>`).join('');
+            document.getElementById('select-compare-b').innerHTML = PRESET_COMBOS.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            updateComboBuilder();
+        }
+
+        function getSelectedComboData() {
+            return {
+                blade: PARTS_DATABASE.blades.find(b => b.id === document.getElementById('select-blade').value) || PARTS_DATABASE.blades[0],
+                ratchet: PARTS_DATABASE.ratchets.find(r => r.id === document.getElementById('select-ratchet').value) || PARTS_DATABASE.ratchets[0],
+                bit: PARTS_DATABASE.bits.find(bt => bt.id === document.getElementById('select-bit').value) || PARTS_DATABASE.bits[0]
+            };
+        }
+
+        function updateComboBuilder() {
+            playSFX('click');
+            const { blade, ratchet, bit } = getSelectedComboData();
+            const atk = Math.min(100, blade.atk + ratchet.atk + bit.atk);
+            const def = Math.min(100, blade.def + ratchet.def + bit.def);
+            const sta = Math.min(100, blade.sta + ratchet.sta + bit.sta);
+            const spd = Math.min(100, blade.spd + ratchet.spd + bit.spd);
+            const bst = Math.min(100, blade.bst + ratchet.bst + bit.bst);
+            const weight = (blade.weight + ratchet.weight + bit.weight).toFixed(1);
+
+            document.getElementById('builder-blade-weight').innerText = blade.weight + 'g';
+            document.getElementById('builder-ratchet-weight').innerText = ratchet.weight + 'g';
+            document.getElementById('builder-bit-weight').innerText = bit.weight + 'g';
+            document.getElementById('builder-display-title').innerText = `${blade.name} ${ratchet.name}${bit.name.charAt(0)}`;
+            
+            document.getElementById('stat-val-attack').innerText = atk; document.getElementById('stat-bar-attack').style.width = atk + '%';
+            document.getElementById('stat-val-defense').innerText = def; document.getElementById('stat-bar-defense').style.width = def + '%';
+            document.getElementById('stat-val-stamina').innerText = sta; document.getElementById('stat-bar-stamina').style.width = sta + '%';
+            document.getElementById('stat-val-speed').innerText = spd; document.getElementById('stat-bar-speed').style.width = spd + '%';
+            document.getElementById('stat-val-burst').innerText = bst; document.getElementById('stat-bar-burst').style.width = bst + '%';
+            document.getElementById('stat-val-weight').innerText = weight + ' grams';
+            document.getElementById('stat-val-archetype').innerText = blade.type.toUpperCase();
+
+            updateComparisonMatrix(); drawComboCanvas();
+        }
+
+        // Experiment Lab Update
+        function updatePrototypeStats() {
+            const wt = document.getElementById('exp-weight').value;
+            const atk = document.getElementById('exp-atk').value;
+            // Does not auto update full UI until injected
+        }
+        function injectPrototype() {
+            alert("🧪 Prototype Injected! Telemetry temporarily overridden for simulation.");
+        }
+
+        function updateVisualizerSpeed(val) { visualizerSpeed = parseInt(val); document.getElementById('visualizer-rpm-text').innerText = visualizerSpeed + ' RPM'; }
+        function toggleVisualizerSpin() { visualizerSpeed = visualizerSpeed > 0 ? 0 : 1200; document.getElementById('slider-visualizer-rpm').value = visualizerSpeed; document.getElementById('visualizer-rpm-text').innerText = visualizerSpeed + ' RPM'; }
+
+        function drawComboCanvas() {
+            const canvas = document.getElementById('combo-visualizer-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save(); ctx.translate(canvas.width/2, canvas.height/2);
+            if (visualizerSpeed > 0) visualizerAngle += (visualizerSpeed / 6000);
+            ctx.rotate(visualizerAngle);
+
+            const { blade, ratchet } = getSelectedComboData();
+            const rOffset = document.getElementById('toggle-explode-view').checked ? 35 : 0;
+            
+            ctx.save(); ctx.scale(1 + rOffset/100, 1 + rOffset/100);
+            ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 3;
+            const teeth = ratchet.protrusions || 3;
+            ctx.beginPath();
+            for (let i = 0; i < teeth * 2; i++) {
+                const angle = (i * Math.PI) / teeth; const r = i % 2 === 0 ? 80 : 65;
+                if (i === 0) ctx.moveTo(Math.cos(angle)*r, Math.sin(angle)*r);
+                else ctx.lineTo(Math.cos(angle)*r, Math.sin(angle)*r);
+            }
+            ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+
+            ctx.fillStyle = document.getElementById('color-blade-tint').value;
+            ctx.shadowColor = document.getElementById('color-core-glow').value;
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            const bladePts = blade.type === 'Attack' ? 3 : 5;
+            for (let i = 0; i < bladePts * 2; i++) {
+                const angle = (i * Math.PI) / bladePts; const r = i % 2 === 0 ? 105 : 75;
+                if (i === 0) ctx.moveTo(Math.cos(angle)*r, Math.sin(angle)*r);
+                else ctx.lineTo(Math.cos(angle)*r, Math.sin(angle)*r);
+            }
+            ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(0, 0, 45, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = ctx.shadowColor; ctx.lineWidth = 2; ctx.stroke();
+            ctx.fillStyle = ctx.shadowColor; ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+
+            if (visualizerSpeed > 0 && !visualizerAnimId) visualizerAnimId = requestAnimationFrame(() => { visualizerAnimId=null; drawComboCanvas(); });
+        }
+
+        function saveCurrentCombo() {
+            playSFX('click');
+            const { blade, ratchet, bit } = getSelectedComboData();
+            const alias = document.getElementById('builder-custom-name').value.trim() || `${blade.name} ${ratchet.name}${bit.name.charAt(0)}`;
+            state.savedCombos.push({ name: alias, bladeId: blade.id, ratchetId: ratchet.id, bitId: bit.id });
+            saveCombosToStorage();
+            alert(`✅ Combo "${alias}" saved!`);
+        }
+        function loadPresetComboModal() { loadPresetIntoBuilder('b-phoenix-wing', 'r-9-60', 'bt-rush'); }
+        function loadPresetIntoBuilder(bId, rId, btId) {
+            document.getElementById('select-blade').value = bId; document.getElementById('select-ratchet').value = rId; document.getElementById('select-bit').value = btId;
+            updateComboBuilder(); switchTab('builder');
+        }
+
+        function updateComparisonMatrix() {
+            const { blade: bA, ratchet: rA, bit: btA } = getSelectedComboData();
+            const comboBName = document.getElementById('select-compare-b').value;
+            const preB = PRESET_COMBOS.find(c => c.name === comboBName) || PRESET_COMBOS[0];
+            const bB = PARTS_DATABASE.blades.find(b => b.id === preB.blade);
+            const rB = PARTS_DATABASE.ratchets.find(r => r.id === preB.ratchet);
+            const btB = PARTS_DATABASE.bits.find(bt => bt.id === preB.bit);
+
+            const aA = bA.atk + rA.atk + btA.atk, dA = bA.def + rA.def + btA.def, sA = bA.sta + rA.sta + btA.sta, spA = bA.spd + rA.spd + btA.spd, bsA = bA.bst + rA.bst + btA.bst;
+            const aB = bB.atk + rB.atk + btB.atk, dB = bB.def + rB.def + btB.def, sB = bB.sta + rB.sta + btB.sta, spB = bB.spd + rB.spd + btB.spd, bsB = bB.bst + rB.bst + btB.bst;
+
+            document.getElementById('comp-a-atk').innerText = aA; document.getElementById('comp-b-atk').innerText = aB;
+            document.getElementById('comp-a-def').innerText = dA; document.getElementById('comp-b-def').innerText = dB;
+            document.getElementById('comp-a-sta').innerText = sA; document.getElementById('comp-b-sta').innerText = sB;
+            document.getElementById('comp-a-spd').innerText = spA; document.getElementById('comp-b-spd').innerText = spB;
+            document.getElementById('comp-a-bst').innerText = bsA; document.getElementById('comp-b-bst').innerText = bsB;
+            
+            document.getElementById('delta-atk').innerText = (aA>=aB?'+':'')+(aA-aB)+' ATK'; document.getElementById('delta-atk').className = aA>=aB?'text-cyber-green':'text-rose-400';
+            document.getElementById('delta-def').innerText = (dA>=dB?'+':'')+(dA-dB)+' DEF'; document.getElementById('delta-def').className = dA>=dB?'text-cyber-green':'text-rose-400';
+            document.getElementById('delta-sta').innerText = (sA>=sB?'+':'')+(sA-sB)+' STA'; document.getElementById('delta-sta').className = sA>=sB?'text-cyber-green':'text-rose-400';
+            document.getElementById('delta-spd').innerText = (spA>=spB?'+':'')+(spA-spB)+' SPD'; document.getElementById('delta-spd').className = spA>=spB?'text-cyber-green':'text-rose-400';
+
+            const adv = aA - aB > 10 ? "Attack Advantage" : (sA - sB > 10 ? "Stamina Advantage" : "Even Matchup");
+            document.getElementById('comparison-verdict-box').innerHTML = `💡 <strong class="text-cyber-cyan font-cyber">MATCHUP ANALYSIS:</strong> Combo A has ${adv}. Uncertainty: ±3.4%.`;
+        }
+
+        /* ==================== 7. EXPLORER ==================== */
+        let explorerFilter = 'all';
+        function renderExplorerGrid() {
+            const all = [...PARTS_DATABASE.blades.map(p=>({...p,t:'Blade'})), ...PARTS_DATABASE.ratchets.map(p=>({...p,t:'Ratchet'})), ...PARTS_DATABASE.bits.map(p=>({...p,t:'Bit'}))];
+            const q = document.getElementById('explorer-search-input').value.toLowerCase();
+            const filtered = all.filter(p => {
+                const m = p.name.toLowerCase().includes(q);
+                if (explorerFilter === 'all') return m;
+                if (['Blade','Ratchet','Bit'].includes(explorerFilter)) return p.t === explorerFilter && m;
+                return p.type === explorerFilter && m;
+            });
+            document.getElementById('explorer-grid').innerHTML = filtered.map(item => `
+                <div class="glass-panel-interactive p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between mb-2"><span class="px-2 py-0.5 rounded text-[10px] font-cyber font-bold uppercase ${getBadgeColor(item.type)}">${item.type||'Standard'}</span><span class="text-xs font-cyber font-bold text-cyber-yellow">${item.weight}g</span></div>
+                        <h4 class="font-cyber font-bold text-white">${item.name}</h4><p class="text-[10px] text-slate-400 mt-1">${item.desc}</p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs mt-3"><span class="text-slate-500 font-semibold">${item.t}</span><button onclick="alert('🔍 Fricton: Medium | Stamina Ret: High')" class="text-cyber-cyan font-bold hover:underline">Telemetry →</button></div>
+                </div>
+            `).join('');
+        }
+        function getBadgeColor(t) { return t==='Attack'?'bg-cyber-magenta/20 text-cyber-magenta border-cyber-magenta/30':(t==='Defense'?'bg-cyber-purple/20 text-cyber-purple border-cyber-purple/30':(t==='Stamina'?'bg-cyber-yellow/20 text-cyber-yellow border-cyber-yellow/30':'bg-cyber-cyan/20 text-cyber-cyan border-cyber-cyan/30')); }
+        function setExplorerFilter(f) { playSFX('click'); explorerFilter = f; renderExplorerGrid(); }
+        function filterExplorerGrid() { renderExplorerGrid(); }
+
+        /* ==================== 8. SIMULATOR ==================== */
+        let arenaSim = { animId: null, stadiumType: 'xtreme', running: false, p1: null, p2: null, particles: [] };
+        function initArenaCanvas() {
+            document.getElementById('sim-select-p2-preset').innerHTML = PRESET_COMBOS.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            document.getElementById('sim-p1-title').innerText = getSelectedComboData().blade.name;
+            resetSimulationArena();
+        }
+        function changeStadiumType(val) { arenaSim.stadiumType = val; resetSimulationArena(); }
+        function updateSimP2Preset(val) { resetSimulationArena(); }
+
+        function resetSimulationArena() {
+            if (arenaSim.animId) cancelAnimationFrame(arenaSim.animId);
+            arenaSim.running = false;
+            const canvas = document.getElementById('arena-canvas'); if (!canvas) return;
+            const cx = canvas.width / 2; const cy = canvas.height / 2;
+
+            const pos = document.getElementById('sim-p1-pos')?.value || 'center';
+            let ox = 0, oy = 0;
+            if(pos === 'mid') { ox = -40; oy = 40; }
+            if(pos === 'edge') { ox = -90; oy = 80; }
+
+            arenaSim.p1 = { x: cx+ox, y: cy+oy, vx: 0, vy: 0, rpm: 0, radius: 22, mass: 43.8, color: '#06b6d4', burstHp: 100, name: getSelectedComboData().blade.name, dir: document.getElementById('sim-p1-spin')?.value==='left'?-1:1 };
+            arenaSim.p2 = { x: cx+100, y: cy-40, vx: 0, vy: 0, rpm: 0, radius: 22, mass: 42.0, color: '#ec4899', burstHp: 100, name: document.getElementById('sim-select-p2-preset').value, dir: document.getElementById('sim-p2-spin')?.value==='left'?-1:1 };
+            
+            arenaSim.particles = []; drawStadiumFrame();
+            document.getElementById('sim-status-text').innerText = 'STADIUM READY — CLICK LAUNCH';
+        }
+
+        function launchSimulation() {
+            playSFX('launch'); resetSimulationArena();
+            const p1Pwr = parseInt(document.getElementById('sim-p1-power').value) / 100;
+            const p1Ang = parseInt(document.getElementById('sim-p1-tilt').value) * (Math.PI / 180);
+            const p2Pwr = parseInt(document.getElementById('sim-p2-power').value) / 100;
+
+            arenaSim.p1.vx = Math.cos(p1Ang) * 8 * p1Pwr * arenaSim.p1.dir;
+            arenaSim.p1.vy = Math.sin(p1Ang) * 8 * p1Pwr;
+            arenaSim.p1.rpm = 2800 * p1Pwr;
+
+            arenaSim.p2.vx = -Math.cos(p1Ang) * 7.5 * p2Pwr * arenaSim.p2.dir;
+            arenaSim.p2.vy = -Math.sin(p1Ang) * 7.5 * p2Pwr;
+            arenaSim.p2.rpm = 2700 * p2Pwr;
+
+            arenaSim.running = true; document.getElementById('sim-status-text').innerText = 'CLASH IN PROGRESS!';
+            logSimConsole(`[LAUNCH] Tilt ${parseInt(p1Ang*180/Math.PI)}°. ${arenaSim.p1.name} & ${arenaSim.p2.name} launch!`);
+            runSimLoop();
+        }
+
+        function runSimLoop() {
+            if (!arenaSim.running) return;
+            updatePhysics(); drawStadiumFrame();
+            arenaSim.animId = requestAnimationFrame(runSimLoop);
+        }
+
+        function updatePhysics() {
+            const { p1, p2, stadiumType } = arenaSim;
+            const cx = 300, cy = 240, R_stadium = 180;
+
+            [p1, p2].forEach(p => {
+                if (p.rpm > 0) {
+                    p.rpm -= 1.8; if (p.rpm < 0) p.rpm = 0;
+                    const dx = cx - p.x; const dy = cy - p.y;
+                    p.vx += dx * 0.0012; p.vy += dy * 0.0012;
+                    p.x += p.vx; p.y += p.vy;
+                    p.vx *= 0.992; p.vy *= 0.992;
+
+                    const dist = Math.hypot(p.x - cx, p.y - cy);
+                    if (stadiumType === 'xtreme' && dist > R_stadium - 20 && dist < R_stadium + 10) {
+                        p.vx *= 1.08; p.vy *= 1.08;
+                        if (Math.random() < 0.3) { playSFX('clash'); createSparkles(p.x, p.y, '#eab308'); logSimConsole(`⚡ [X-DASH] ${p.name} engaged Rail!`); }
+                    }
+                }
+            });
+
+            const dx = p2.x - p1.x, dy = p2.y - p1.y, dist = Math.hypot(dx, dy);
+            if (dist < p1.radius + p2.radius && p1.rpm > 0 && p2.rpm > 0) {
+                const nx = dx / dist, ny = dy / dist, kx = p1.vx - p2.vx, ky = p1.vy - p2.vy;
+                // Opposite spin recoil multiplier
+                const spinMult = (p1.dir !== p2.dir) ? 2.5 : 1.5;
+                const p = 2 * (nx * kx + ny * ky) / (p1.mass + p2.mass);
+                p1.vx -= p * p2.mass * nx * spinMult; p1.vy -= p * p2.mass * ny * spinMult;
+                p2.vx += p * p1.mass * nx * spinMult; p2.vy += p * p1.mass * ny * spinMult;
+                p1.burstHp -= 12; p2.burstHp -= 12;
+                playSFX('clash'); createSparkles((p1.x+p2.x)/2, (p1.y+p2.y)/2, '#06b6d4');
+                logSimConsole(`💥 [IMPACT] Clash! Spin Dir mult: ${spinMult}x`);
+            }
+
+            document.getElementById('telemetry-p1-speed').innerText = (Math.hypot(p1.vx, p1.vy) * 4.2).toFixed(1) + ' km/h';
+            document.getElementById('telemetry-p1-rpm').innerText = Math.round(p1.rpm) + ' RPM';
+            document.getElementById('telemetry-p2-speed').innerText = (Math.hypot(p2.vx, p2.vy) * 4.2).toFixed(1) + ' km/h';
+            document.getElementById('telemetry-p2-rpm').innerText = Math.round(p2.rpm) + ' RPM';
+
+            if (p1.burstHp <= 0) endSim('Burst Finish', p2.name);
+            else if (p2.burstHp <= 0) endSim('Burst Finish', p1.name);
+            else if (p1.rpm <= 0 && p2.rpm <= 0) endSim('Draw', 'Nobody');
+            else if (p1.rpm <= 0) endSim('Spin Finish', p2.name);
+            else if (p2.rpm <= 0) endSim('Spin Finish', p1.name);
+        }
+
+        function endSim(finish, winner) {
+            arenaSim.running = false; playSFX(finish.includes('Burst') ? 'burst' : 'click');
+            document.getElementById('sim-status-text').innerText = finish==='Draw'?'DRAW':`VICTORY: ${winner} (${finish})`;
+            logSimConsole(finish==='Draw'?'🤝 DRAW!':`🏆 [FINISH] ${winner} wins by ${finish}!`);
+        }
+
+        function createSparkles(x,y,c) { for(let i=0;i<8;i++) arenaSim.particles.push({x,y,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6,life:1,color:c}); }
+        function drawStadiumFrame() {
+            const canvas = document.getElementById('arena-canvas'); const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.strokeStyle='#1e293b'; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(300,240,180,0,Math.PI*2); ctx.stroke();
+            if (arenaSim.stadiumType==='xtreme') { ctx.strokeStyle='#06b6d4'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(300,240,172,0,Math.PI*2); ctx.stroke(); }
+            ctx.strokeStyle='#0f172a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(300,240,90,0,Math.PI*2); ctx.stroke();
+            ctx.fillStyle='#ec4899'; ctx.beginPath(); ctx.arc(300,240,6,0,Math.PI*2); ctx.fill();
+
+            [arenaSim.p1, arenaSim.p2].forEach(p => {
+                if(!p) return;
+                ctx.save(); ctx.translate(p.x, p.y);
+                ctx.shadowColor = p.color; ctx.shadowBlur = 12; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(0,0,p.radius,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#080b12'; ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill(); ctx.restore();
+            });
+
+            arenaSim.particles.forEach((pt,i) => {
+                pt.x+=pt.vx; pt.y+=pt.vy; pt.life-=0.05;
+                if(pt.life>0){ ctx.fillStyle=pt.color; ctx.beginPath(); ctx.arc(pt.x,pt.y,2.5,0,Math.PI*2); ctx.fill(); } else arenaSim.particles.splice(i,1);
+            });
+        }
+        function logSimConsole(msg) { const c = document.getElementById('sim-event-console'); c.innerHTML += `<div>${msg}</div>`; c.scrollTop = c.scrollHeight; }
+
+        /* ==================== 9. MATCHES ==================== */
+        function openLogMatchModal() {
+            playSFX('click');
+            document.getElementById('modal-match-p1-combo').innerHTML = state.savedCombos.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            document.getElementById('modal-log-match').classList.remove('hidden');
+        }
+        function closeLogMatchModal() { document.getElementById('modal-log-match').classList.add('hidden'); }
+        
+        function saveLoggedMatch() {
+            playSFX('click');
+            const p1 = document.getElementById('modal-match-p1-combo').value;
+            const p2 = document.getElementById('modal-match-p2-name').value || 'Rival Blader';
+            const finish = document.getElementById('modal-match-finish-type').value;
+            const outcome = document.getElementById('modal-match-outcome').value;
+
+            let pts = 0;
+            if(finish.includes('Xtreme')) pts=3; else if(finish.includes('Burst') || finish.includes('Over')) pts=2; else if(finish.includes('Spin')) pts=1;
+            if(outcome === 'DRAW') pts = 0;
+
+            state.matchLogs.unshift({ date: new Date().toISOString().split('T')[0], p1, p2, finish, pts, score: outcome==='VICTORY'?`${pts}-0`:(outcome==='DRAW'?'0-0':`0-${pts}`), outcome });
+            saveMatchesToStorage();
+            if(outcome === 'VICTORY') state.userXP += 100; else if(outcome === 'DRAW') state.userXP += 10;
+            updateXPDisplay(); closeLogMatchModal(); renderMatchHistoryTable(); renderDashboard();
+        }
+
+        function clearMatchHistory() {
+            if (confirm('Clear all battle records?')) { state.matchLogs = []; saveMatchesToStorage(); renderMatchHistoryTable(); renderDashboard(); }
+        }
+
+        function renderMatchHistoryTable() {
+            const body = document.getElementById('match-history-table-body');
+            if (!state.matchLogs.length) { body.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No battle records.</td></tr>`; return; }
+            body.innerHTML = state.matchLogs.map(m => `
+                <tr class="hover:bg-slate-900/60 transition">
+                    <td class="p-3.5 text-slate-400">${m.date}</td><td class="p-3.5 font-bold text-white">${m.p1}</td><td class="p-3.5 text-slate-300">${m.p2}</td>
+                    <td class="p-3.5 text-cyber-cyan">${m.finish}</td><td class="p-3.5 text-center font-cyber font-bold text-cyber-yellow">+${m.pts}</td>
+                    <td class="p-3.5 text-right font-cyber font-bold ${m.outcome === 'VICTORY' ? 'text-cyber-green' : (m.outcome==='DRAW'?'text-cyber-yellow':'text-rose-400')}">${m.outcome}</td>
+                </tr>
+            `).join('');
+
+            const w = state.matchLogs.filter(m=>m.outcome==='VICTORY').length, d = state.matchLogs.filter(m=>m.outcome==='DRAW').length, l = state.matchLogs.length - w - d;
+            const pts = state.matchLogs.reduce((acc, curr) => curr.outcome==='VICTORY' ? acc + curr.pts : acc, 0);
+            document.getElementById('matches-total-wins').innerText = `${w} W - ${l} L - ${d} D`;
+            document.getElementById('matches-winrate-pct').innerText = (state.matchLogs.length ? Math.round((w/state.matchLogs.length)*100) : 0) + '%';
+            document.getElementById('matches-total-points').innerText = pts + ' PTS';
+        }
+
+        /* ==================== 10. SKILLS & TRAINING ==================== */
+        function renderSkillTree() {
+            document.getElementById('skill-tree-nodes-container').innerHTML = SKILL_TREE_DATA.map(n => `
+                <div class="glass-panel p-5 rounded-2xl border ${n.unlocked ? 'border-cyber-cyan/50 shadow-neon-cyan' : 'border-slate-800'} space-y-3">
+                    <div class="flex justify-between"><span class="text-2xl">${n.icon}</span><span class="text-[10px] font-cyber font-bold px-2 py-0.5 rounded ${n.unlocked ? 'bg-cyber-green/20 text-cyber-green' : 'bg-slate-800 text-slate-400'}">${n.unlocked ? 'UNLOCKED' : n.cost + ' XP'}</span></div>
+                    <h4 class="font-cyber font-bold text-sm text-white">${n.name}</h4><p class="text-[10px] text-slate-400">${n.desc}</p>
+                    ${!n.unlocked ? `<button onclick="unlockSkill('${n.id}')" class="w-full py-1.5 rounded bg-cyber-cyan text-slate-950 font-cyber font-bold text-[10px] uppercase">Unlock</button>` : `<div class="text-[10px] text-cyber-cyan font-semibold text-center">Active Boost</div>`}
+                </div>
+            `).join('');
+        }
+        function unlockSkill(id) {
+            const node = SKILL_TREE_DATA.find(n => n.id === id);
+            if (node && state.userXP >= node.cost) { playSFX('click'); state.userXP -= node.cost; node.unlocked = true; updateXPDisplay(); renderSkillTree(); alert(`🎯 Unlocked [${node.name}]!`); }
+            else alert(`❌ Insufficient XP.`);
+        }
+        function updateXPDisplay() {
+            document.getElementById('skill-tree-xp-display').innerText = state.userXP + ' XP';
+            document.getElementById('user-xp-text').innerText = state.userXP + ' XP';
+            document.getElementById('user-xp-bar').style.width = Math.min(100, (state.userXP / 1000) * 100) + '%';
+        }
+        function logPractice() {
+            playSFX('click');
+            const cont = document.getElementById('practice-logs');
+            cont.innerHTML = `<div class="text-[10px] text-slate-400 flex justify-between"><span>Custom Drill Logged</span> <span class="text-cyber-green">Success!</span></div>` + cont.innerHTML;
+        }
+
+        window.onload = function() {
+            loadLocalStorageData(); initComboBuilderSelects(); renderDashboard(); renderExplorerGrid(); renderMatchHistoryTable(); renderSkillTree(); updateXPDisplay(); switchTab('dashboard');
+        };
+    </script>
+</body>
+</html>
