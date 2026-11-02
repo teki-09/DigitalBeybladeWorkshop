@@ -10,7 +10,7 @@ Check Out The Video Demo: https://www.youtube.com/watch?v=m6L8MTdignU
 or writeups
 1. https://medium.com/@aniketsrivastava81/building-a-digital-beyblade-workshop-beyblade-part-1-of-3-376cbcab2aed
 2. https://medium.com/@aniketsrivastava81/let-it-rip-building-a-beyblade-arena-with-canvas-and-javascript-beyblade-part-2-of-3-ad0f61b24764
-3. 
+3. https://medium.com/@aniketsrivastava81/beyblade-match-logs-training-and-keeping-your-data-local-beyblade-part-3-of-3-3acf5c7932c2
 
 
 
