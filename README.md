@@ -12,7 +12,7 @@ or writeups
 2. https://medium.com/@aniketsrivastava81/let-it-rip-building-a-beyblade-arena-with-canvas-and-javascript-beyblade-part-2-of-3-ad0f61b24764
 3. https://medium.com/@aniketsrivastava81/beyblade-match-logs-training-and-keeping-your-data-local-beyblade-part-3-of-3-3acf5c7932c2
 
-Check Live deployment: https://github.com/teki-09/DigitalBeybladeWorkshop/deployments/github-pages
+Check Live deployment: https://teki-09.github.io/DigitalBeybladeWorkshop/
 
 
 | Feature / Module | Implementation Details |
