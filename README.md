@@ -1,18 +1,15 @@
 # DigitalBeybladeWorkshop
 I made a Beyblade webpage for fun, with a dashboard, a searchable parts catalogue and a combo builder. The arena in my Beyblade webpage uses Canvas drawings, an animation loop and a small set of movement and collision rules. Skill tree, practice interface and localized JSON backups
 
+**Check Live deployment: https://teki-09.github.io/DigitalBeybladeWorkshop/**
 
+**Check Out The Video Demo: https://www.youtube.com/watch?v=m6L8MTdignU**
 
-
-
-Check Out The Video Demo: https://www.youtube.com/watch?v=m6L8MTdignU
-
-or writeups
+**or checkout writeups**
 1. https://medium.com/@aniketsrivastava81/building-a-digital-beyblade-workshop-beyblade-part-1-of-3-376cbcab2aed
 2. https://medium.com/@aniketsrivastava81/let-it-rip-building-a-beyblade-arena-with-canvas-and-javascript-beyblade-part-2-of-3-ad0f61b24764
 3. https://medium.com/@aniketsrivastava81/beyblade-match-logs-training-and-keeping-your-data-local-beyblade-part-3-of-3-3acf5c7932c2
 
-Check Live deployment: https://teki-09.github.io/DigitalBeybladeWorkshop/
 
 
 | Feature / Module | Implementation Details |
